@@ -1,0 +1,89 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <string>
+#include <thread>
+#include <chrono>
+
+using namespace std;
+
+// Define traffic light colors as strings
+const string GREEN = "GREEN";
+const string RED = "RED";
+
+// Structure to represent each traffic light with its state and vehicle count
+struct TrafficLight {
+    string color;
+    int vehicleCount;
+};
+
+// Function to simulate vehicle detection by generating a random vehicle count
+void simulateVehicleDetection(TrafficLight &light) {
+    light.vehicleCount = rand() % 10; // Random vehicle count between 0 and 9
+}
+
+// Function to update traffic lights based on vehicle count
+void updateTrafficLights(TrafficLight &north, TrafficLight &south, TrafficLight &east, TrafficLight &west) {
+    // Determine which direction should get the green light based on vehicle count
+    TrafficLight *maxTrafficLight = &north;
+    if (south.vehicleCount > maxTrafficLight->vehicleCount) maxTrafficLight = &south;
+    if (east.vehicleCount > maxTrafficLight->vehicleCount) maxTrafficLight = &east;
+    if (west.vehicleCount > maxTrafficLight->vehicleCount) maxTrafficLight = &west;
+
+    // Set all lights to red initially
+    north.color = RED;
+    south.color = RED;
+    east.color = RED;
+    west.color = RED;
+
+    // Set the direction with the most vehicles to green
+    maxTrafficLight->color = GREEN;
+}
+
+// Function to display the traffic light status and vehicle counts in the console
+void displayStatus(const TrafficLight &north, const TrafficLight &south, const TrafficLight &east, const TrafficLight &west) {
+    cout << "\n--- Traffic Light Status ---" << endl;
+    cout << "North: " << north.color << " | Vehicle Count: " << north.vehicleCount << endl;
+    cout << "South: " << south.color << " | Vehicle Count: " << south.vehicleCount << endl;
+    cout << "East: "  << east.color  << " | Vehicle Count: " << east.vehicleCount << endl;
+    cout << "West: "  << west.color  << " | Vehicle Count: " << west.vehicleCount << endl;
+}
+
+int main() {
+    // Initialize random seed
+    srand(static_cast<unsigned>(time(0)));
+
+    // Define traffic lights for each direction
+    TrafficLight north, south, east, west;
+    north.color = RED;
+    south.color = RED;
+    east.color = RED;
+    west.color = RED;
+
+    // Simulation loop
+    while (true) {
+        // Simulate vehicle detection by generating random counts
+        simulateVehicleDetection(north);
+        simulateVehicleDetection(south);
+        simulateVehicleDetection(east);
+        simulateVehicleDetection(west);
+
+        // Update traffic lights based on the current vehicle counts
+        updateTrafficLights(north, south, east, west);
+
+        // Display the traffic light status in the console
+        displayStatus(north, south, east, west);
+
+        // Wait for 1 second before updating again
+        this_thread::sleep_for(chrono::seconds(1));
+
+        // Clear console screen (platform-specific)
+        #if defined(_WIN32) || defined(_WIN64)
+            system("cls");
+        #else
+            system("clear");
+        #endif
+    }
+
+    return 0;
+}
